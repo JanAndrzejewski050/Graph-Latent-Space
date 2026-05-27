@@ -10,7 +10,7 @@ import os
 TRAIN_DATA_PATH = '../data/subset/train.pt'
 VAL_DATA_PATH = '../data/subset/val.pt'
 
-NODE_FEATURES = 1 
+NODE_FEATURES = 31
 HIDDEN_DIM = 64
 LATENT_DIM = 128
 MAX_NODES = 37
@@ -62,13 +62,11 @@ class GraphVAE(nn.Module):
         self.dec_node2 = nn.Linear(hidden_dim, max_nodes * num_atom_types)
         
     def encode(self, x, edge_index, batch):
-        x_one_hot = create_one_hot_features(x, SUPPORTED_ATOMS, x.device)
-        
-        x = F.relu(self.conv1(x_one_hot, edge_index))
+        x = F.relu(self.conv1(x, edge_index))
         x = F.relu(self.conv2(x, edge_index))
         x = global_mean_pool(x, batch) 
         return self.mu_layer(x), self.logvar_layer(x)
-        
+
     def reparameterize(self, mu, logvar):
         if self.training:
             std = torch.exp(0.5 * logvar)

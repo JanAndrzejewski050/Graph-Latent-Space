@@ -18,10 +18,14 @@ class GraphVAEEvaluator:
         self.train_smiles_set = set(train_smiles_list) if train_smiles_list else set()
 
     def _logits_to_mol(self, adj_logits, node_logits, threshold=0.0):
+        """
+        Converts the predicted bond matrix and atom type logits into an RDKit Mol object.
+        """
         SUPPORTED_ATOMS = [1, 6, 7, 8, 9, 15, 16, 17, 35, 53]        
         
         adj = (adj_logits > threshold).cpu().numpy()
         
+        # Argmax over the last dimension to get the most probable atom index (0-9)
         atom_type_indices = torch.argmax(node_logits, dim=-1).cpu().numpy()
         
         degrees = adj.sum(axis=0)
@@ -29,9 +33,11 @@ class GraphVAEEvaluator:
         
         if len(active_nodes) == 0:
             return None 
+            
         mol = Chem.RWMol()
         node_to_idx = {}
         
+        # Add atoms with their true predicted elements
         for node in active_nodes:
             pred_idx = atom_type_indices[node]
             atomic_num = SUPPORTED_ATOMS[pred_idx]
@@ -39,6 +45,7 @@ class GraphVAEEvaluator:
             idx = mol.AddAtom(Chem.Atom(atomic_num))
             node_to_idx[node] = idx
             
+        # Add bonds
         for i in range(len(active_nodes)):
             for j in range(i + 1, len(active_nodes)):
                 orig_i, orig_j = active_nodes[i], active_nodes[j]
@@ -52,16 +59,19 @@ class GraphVAEEvaluator:
             return None
 
     def evaluate_vun(self, num_samples=1000):
+        """
+        Metrics: Validity, Uniqueness, Novelty (VUN)
+        """
         print(f"Sampling {num_samples} random vectors from latent space...")
         valid_mols = []
         valid_smiles = []
         
-        latent_dim = self.model.dec1.in_features
+        latent_dim = self.model.dec_adj1.in_features
         
         with torch.no_grad():
             z = torch.randn(num_samples, latent_dim).to(self.device)
             adj_preds, node_preds = self.model.decode(z)
-
+            
             for i in tqdm(range(num_samples)):
                 mol = self._logits_to_mol(adj_preds[i], node_preds[i])
                 if mol is not None:
@@ -77,10 +87,10 @@ class GraphVAEEvaluator:
         novelty = len(novel_smiles) / len(unique_smiles) if unique_smiles else 0.0
         
         print("\n--- VUN Analysis ---")
-        print(f"Validity:  {validity*100:.2f}% ({len(valid_mols)}/{num_samples})")
-        print(f"Uniqueness: {uniqueness*100:.2f}% ({len(unique_smiles)}/{len(valid_smiles)})")
+        print(f"Validity (Poprawność):  {validity*100:.2f}% ({len(valid_mols)}/{num_samples})")
+        print(f"Uniqueness (Unikalność): {uniqueness*100:.2f}% ({len(unique_smiles)}/{len(valid_smiles)})")
+        print(f"Novelty (Nowość):       {novelty*100:.2f}% ({len(novel_smiles)}/{len(unique_smiles)})")
         print(f"Unique smiles generated: {unique_smiles}")
-        print(f"Novelty: {novelty*100:.2f}% ({len(novel_smiles)}/{len(unique_smiles)})")
         
         return validity, uniqueness, novelty
 
@@ -96,7 +106,6 @@ class GraphVAEEvaluator:
                 mu, _ = self.model.encode(data.x, data.edge_index, data.batch)
                 z_list.append(mu.cpu().numpy())
                 
-                # Obliczamy właściwości chemiczne oryginalnych SMILES
                 for smiles in data.smiles:
                     mol = Chem.MolFromSmiles(smiles)
                     if mol:
@@ -126,6 +135,3 @@ class GraphVAEEvaluator:
         plt.savefig('latent_space_analysis.png')
         print("Latent space visualization saved as 'latent_space_analysis.png'")
         plt.show()
-
-if __name__ == '__main__':
-    pass
