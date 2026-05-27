@@ -132,4 +132,5 @@ class GraphVAEEvaluator:
         plt.colorbar(sc2, ax=axes[1], label="Molecular Weight (Da)")
         
         plt.tight_layout()
+        plt.savefig('latent-space-analysis1.png')
         plt.show()

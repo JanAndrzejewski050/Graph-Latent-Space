@@ -234,7 +234,7 @@ def main():
         if epoch % 5 == 0 or epoch == 1:
             print(f"Epoch {epoch:03d}/{EPOCHS:03d} | "
                   f"Train Loss: {t_loss:.4f} (Recon: {t_recon:.4f}, KL: {t_kl:.4f}) | "
-                  f"Val Loss: {v_loss:.4f}")
+                  f"Val Loss: {v_loss:.4f} (Recon: {v_recon:.4f}, KL: {v_kl:.4f}) |")
             
         if v_loss < best_val_loss:
             best_val_loss = v_loss
@@ -243,12 +243,12 @@ def main():
     plt.figure(figsize=(10, 5))
     plt.plot(history['train_loss'], label='Train Loss', color='blue', linewidth=2)
     plt.plot(history['val_loss'], label='Validation Loss', color='orange', linewidth=2)
-    plt.title('Krzywa uczenia Graph VAE')
-    plt.xlabel('Epoka')
-    plt.ylabel('Loss (ELBO)')
+    plt.title('learning curve for VAE')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
     plt.legend()
     plt.grid(True)    
-    plt.show()
+    plt.savefig('loss_curve1.png')
 
 if __name__ == '__main__':
     main()
