@@ -18,6 +18,7 @@ data/subset/*.pt
 logs/
 tb_logs/
 wandb/
+*.zip
 
 # Wyjątki - jeśli chcesz zachować strukturę folderów, ale bez plików
 !data/raw/.gitkeep
