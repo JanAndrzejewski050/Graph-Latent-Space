@@ -15,9 +15,9 @@ HIDDEN_DIM = 64
 LATENT_DIM = 128
 MAX_NODES = 37
 BATCH_SIZE = 128
-EPOCHS = 50
+EPOCHS = 25
 LEARNING_RATE = 1e-3
-BETA = 0.1 
+BETA = 0.001
 
 if torch.backends.mps.is_available():
     DEVICE = torch.device("mps")
@@ -148,6 +148,7 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     
     history = {'train_loss': [], 'val_loss': []}
+    best_val_loss = float('inf') 
     
     for epoch in range(1, EPOCHS + 1):
         t_loss, t_recon, t_kl = train(model, train_loader, optimizer)
@@ -160,6 +161,10 @@ def main():
             print(f"Epoch {epoch:03d}/{EPOCHS:03d} | "
                   f"Train Loss: {t_loss:.4f} (Recon: {t_recon:.4f}, KL: {t_kl:.4f}) | "
                   f"Val Loss: {v_loss:.4f}")
+            
+        if v_loss < best_val_loss:
+            best_val_loss = v_loss
+            torch.save(model.state_dict(), 'model1_weights.pth')
 
     plt.figure(figsize=(10, 5))
     plt.plot(history['train_loss'], label='Train Loss', color='blue', linewidth=2)
@@ -168,9 +173,9 @@ def main():
     plt.xlabel('Epoka')
     plt.ylabel('Loss (ELBO)')
     plt.legend()
-    plt.grid(True)
-    
+    plt.grid(True)    
     plt.savefig('loss_curve1.png')
+    plt.show()
 
 if __name__ == '__main__':
     main()

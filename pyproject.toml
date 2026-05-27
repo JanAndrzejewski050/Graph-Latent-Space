@@ -10,6 +10,7 @@ dependencies = [
     "pandas>=3.0.3",
     "rdkit>=2026.3.2",
     "scikit-learn>=1.8.0",
+    "seaborn>=0.13.2",
     "torch>=2.12.0",
     "torch-geometric>=2.7.0",
     "tqdm>=4.67.3",
