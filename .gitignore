@@ -1,0 +1,25 @@
+# Środowisko
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Jupyter i IDE
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Dane i modele - NIE CHCEMY ICH W REPOZYTORIUM
+data/raw/*.csv
+data/processed/*.pt
+data/subset/*.pt
+*.pth
+*.pt
+logs/
+tb_logs/
+wandb/
+
+# Wyjątki - jeśli chcesz zachować strukturę folderów, ale bez plików
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/subset/.gitkeep
