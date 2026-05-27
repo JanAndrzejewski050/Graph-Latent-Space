@@ -87,9 +87,9 @@ class GraphVAEEvaluator:
         novelty = len(novel_smiles) / len(unique_smiles) if unique_smiles else 0.0
         
         print("\n--- VUN Analysis ---")
-        print(f"Validity (Poprawność):  {validity*100:.2f}% ({len(valid_mols)}/{num_samples})")
-        print(f"Uniqueness (Unikalność): {uniqueness*100:.2f}% ({len(unique_smiles)}/{len(valid_smiles)})")
-        print(f"Novelty (Nowość):       {novelty*100:.2f}% ({len(novel_smiles)}/{len(unique_smiles)})")
+        print(f"Validity:  {validity*100:.2f}% ({len(valid_mols)}/{num_samples})")
+        print(f"Uniqueness: {uniqueness*100:.2f}% ({len(unique_smiles)}/{len(valid_smiles)})")
+        print(f"Novelty: {novelty*100:.2f}% ({len(novel_smiles)}/{len(unique_smiles)})")
         print(f"Unique smiles generated: {unique_smiles}")
         
         return validity, uniqueness, novelty
@@ -132,6 +132,4 @@ class GraphVAEEvaluator:
         plt.colorbar(sc2, ax=axes[1], label="Molecular Weight (Da)")
         
         plt.tight_layout()
-        plt.savefig('latent_space_analysis.png')
-        print("Latent space visualization saved as 'latent_space_analysis.png'")
         plt.show()

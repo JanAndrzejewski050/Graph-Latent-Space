@@ -10,7 +10,7 @@ import os
 TRAIN_DATA_PATH = '../data/subset/train.pt'
 VAL_DATA_PATH = '../data/subset/val.pt'
 
-NODE_FEATURES = 31
+NODE_FEATURES = 30
 HIDDEN_DIM = 64
 LATENT_DIM = 128
 MAX_NODES = 37
@@ -21,7 +21,6 @@ BETA = 0.001
 
 SUPPORTED_ATOMS = [1, 6, 7, 8, 9, 15, 16, 17, 35, 53]
 NUM_ATOM_TYPES = len(SUPPORTED_ATOMS)
-NODE_FEATURES = NUM_ATOM_TYPES # one hot vector
 
 if torch.backends.mps.is_available():
     DEVICE = torch.device("mps")
@@ -249,7 +248,6 @@ def main():
     plt.ylabel('Loss (ELBO)')
     plt.legend()
     plt.grid(True)    
-    plt.savefig('loss_curve1.png')
     plt.show()
 
 if __name__ == '__main__':
