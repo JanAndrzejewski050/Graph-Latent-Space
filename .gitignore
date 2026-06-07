@@ -13,6 +13,7 @@ __pycache__/
 data/raw/*.csv
 data/processed/*.pt
 data/subset/*.pt
+models/*
 *.pth
 *.pt
 logs/
