@@ -292,8 +292,12 @@ def run_training(config: TrainConfig):
 
     print(f"Training on {len(train_dataset)} graphs, validating on {len(val_dataset)}")
 
-    train_loader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=config.batch_size, shuffle=False)
+    # Disable multiprocessing workers on macOS to avoid 'spawn' overhead/crashes
+    num_workers = 0
+    train_loader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True,
+                              num_workers=num_workers)
+    val_loader = DataLoader(val_dataset, batch_size=config.batch_size, shuffle=False,
+                            num_workers=num_workers)
 
     model = create_model(config.arch, config).to(device)
     print(f"Architecture: {config.arch}")
@@ -334,16 +338,15 @@ def run_training(config: TrainConfig):
         history["beta"].append(beta)
         history["lr"].append(lr)
 
-        if epoch % 5 == 0 or epoch == 1:
-            print(
-                f"Epoch {epoch:03d}/{config.epochs:03d} | "
-                f"β={beta:.4f} | lr={lr:.2e} | "
-                f"Train Loss: {t_metrics['loss']:.4f} "
-                f"(Adj: {t_metrics['adj_loss']:.4f}, "
-                f"Node: {t_metrics['node_loss']:.4f}, "
-                f"KL: {t_metrics['kl_loss']:.4f}) | "
-                f"Val Loss: {v_metrics['loss']:.4f}"
-            )
+        print(
+            f"Epoch {epoch:03d}/{config.epochs:03d} | "
+            f"β={beta:.4f} | lr={lr:.2e} | "
+            f"Train Loss: {t_metrics['loss']:.4f} "
+            f"(Adj: {t_metrics['adj_loss']:.4f}, "
+            f"Node: {t_metrics['node_loss']:.4f}, "
+            f"KL: {t_metrics['kl_loss']:.4f}) | "
+            f"Val Loss: {v_metrics['loss']:.4f}"
+        )
 
         if v_metrics["loss"] < best_val_loss:
             best_val_loss = v_metrics["loss"]
